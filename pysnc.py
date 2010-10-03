@@ -1,7 +1,6 @@
 """ A Python Library to query and update the Service Now console """
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
 import copy
 import urllib
 import urllib2
@@ -31,7 +30,16 @@ class PySNC:
         self.instance = kwargs.get('instance')
         if not self.instance: raise PySNCConfigError("Missing instance parameter")
 
-        self.debug = kwargs.get('debug')
+        self.log = logging.getLogger('pysnc')
+        if kwargs.has_key('debug') and kwargs['debug']:
+            self.log.setLevel(logging.DEBUG)
+            h = logging.StreamHandler()
+            f = logging.Formatter("%(levelname)s %(asctime)s fn=%(funcName)s() line=%(lineno)d msg=%(message)s")
+            h.setFormatter(f)
+            self.log.addHandler(h)
+        else:
+            self.log.setLevel(logging.NOTSET)
+
         self.login()
 
 
@@ -46,7 +54,7 @@ class PySNC:
 
         opener = urllib2.build_opener(authhandler)
         urllib2.install_opener(opener)
-        if self.debug: '''Logged into Service Now and authenticated as %s''' % self.username
+        self.log.debug('''Logged into Service Now and authenticated as %s''' % self.username)
 
 
     def get_incident_url(self, params):
@@ -57,13 +65,13 @@ class PySNC:
         str = str[:-1]
         str = '''sysparm_action=getRecords&sysparm_query=%s''' % str
         url = '''https://%s.service-now.com/incident.do?JSON&%s''' % ( self.instance, str )
-        if self.debug: logging.debug("Query URL %s" % url)
+        self.log.debug("Query URL %s" % url)
         return url
 
 
     def filterIncidents(self, *args, **kwargs):
 
-        if self.debug: logging.debug("Querying incident table with params %s" % kwargs)
+        self.log.debug("Querying incident table with params %s" % kwargs)
 
         url = self.get_incident_url(kwargs)
         r = urllib2.urlopen(url)
