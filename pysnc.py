@@ -76,7 +76,6 @@ class PySNC:
         url = self._get_incident_url(kwargs)
         r = urllib2.urlopen(url)
         j = json.loads(r.read())
-        if self.debug: logging.debug(j)
         ret = []
         for i in j['records']:
             ret.append(PySNCIncident(snc_instance=self, data=i))
