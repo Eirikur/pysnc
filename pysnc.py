@@ -40,11 +40,11 @@ class PySNC:
         else:
             self.log.setLevel(logging.NOTSET)
 
-        self.login()
+        self._login()
 
 
 
-    def login(self):
+    def _login(self):
         """ Log into SNC and set the correct credentials"""
 
         base_url = 'https://%s.service-now.com/' % self.instance
@@ -57,7 +57,7 @@ class PySNC:
         self.log.debug('''Logged into Service Now and authenticated as %s''' % self.username)
 
 
-    def get_incident_url(self, params):
+    def _get_incident_url(self, params):
         """ Return the correct URL for querying the Service Now console Incident table """
         str = ''
         for k in params.keys():
@@ -73,7 +73,7 @@ class PySNC:
 
         self.log.debug("Querying incident table with params %s" % kwargs)
 
-        url = self.get_incident_url(kwargs)
+        url = self._get_incident_url(kwargs)
         r = urllib2.urlopen(url)
         j = json.loads(r.read())
         if self.debug: logging.debug(j)
