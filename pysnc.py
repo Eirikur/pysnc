@@ -59,6 +59,7 @@ class PySNC:
 
     def _get_incident_url(self, params):
         """ Return the correct URL for querying the Service Now console Incident table """
+
         str = ''
         for k in params.keys():
             str += '''%s=%s^''' % ( k, params[k])
@@ -78,11 +79,11 @@ class PySNC:
         j = json.loads(r.read())
         ret = []
         for i in j['records']:
-            ret.append(PySNCIncident(snc_instance=self, data=i))
+            ret.append(SNCIncident(snc_instance=self, data=i))
         return ret
                 
 
-class PySNCIncident:
+class SNCIncident:
     def __init__(self, snc_instance, data):
         self.data = data
         self.snc_instance = snc_instance
