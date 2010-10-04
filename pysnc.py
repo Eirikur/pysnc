@@ -82,6 +82,21 @@ class PySNC:
             ret.append(SNCIncident(snc_instance=self, log=self.log, data=i))
         return ret
 
+    def getIncident(self, *args, **kwargs):
+
+        self.log.debug("Querying incident table with params %s" % kwargs)
+
+        url = self._get_incident_url(kwargs)
+        r = urllib2.urlopen(url)
+        j = json.loads(r.read())
+        if len(j['records']) == 0:
+            raise PySNCError("No records were returned")
+        elif len(j['records']) > 1:
+            raise PySNCError("Multiple records were returned")
+        else:
+            return SNCIncident(snc_instance=self, log=self.log, data=j['records'][0])
+
+
     def addIncident(self, *args, **kwargs):
         """ Return a SNCIncident instance that is not committed to the Service
         Now database yet.
