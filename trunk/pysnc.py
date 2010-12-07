@@ -107,6 +107,24 @@ class PySNC:
 
         self.log.debug("Adding a new instance with kwargs %s" % kwargs)
         return SNCIncident(snc_instance=self, log=self.log, data=kwargs)
+
+    def resolveAttribute(self, name, table_name):
+        """ Return a sys_id for an attribute given it's name.
+
+        Return None if the attribute is not found"""
+
+        name = urllib.urlencode({'sysparm_query': 'name=%s' % name})
+
+        url = '''https://%s.service-now.com/%s?JSON&sysparm_action=getRecords&%s''' % ( self.instance, table_name, name)
+        self.log.debug('Query URL %s' % url)
+        r = urllib2.urlopen(url)
+        j = json.loads(r.read())
+        if not j['records']:
+            self.log.debug('Returning None')
+            return None
+        self.log.debug('Returned result %s' % j)
+        return j['records'][0]['sys_id']
+
                 
 
 class SNCIncident:
