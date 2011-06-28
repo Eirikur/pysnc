@@ -57,15 +57,15 @@ class PySNC:
         self.log.debug('''Logged into Service Now and authenticated as %s''' % self.username)
 
 
-    def _get_incident_url(self, params):
-        """ Return the correct URL for querying the Service Now console Incident table """
+    def _get_query_url(self, table, **params):
+        """ Return the correct URL for querying the Service Now console database table """
 
         str = ''
         for k in params.keys():
             str += '''%s=%s^''' % ( k, params[k])
         str = str[:-1]
         str = '''sysparm_action=getRecords&sysparm_query=%s''' % str
-        url = '''https://%s.service-now.com/incident.do?JSON&%s''' % ( self.instance, str )
+        url = '''https://%s.service-now.com/%s?JSON&%s''' % ( self.instance, table, str )
         self.log.debug("Query URL %s" % url)
         return url
 
@@ -74,7 +74,7 @@ class PySNC:
 
         self.log.debug("Querying incident table with params %s" % kwargs)
 
-        url = self._get_incident_url(kwargs)
+        url = self._get_query_url('incident.do', **kwargs)
         r = urllib2.urlopen(url)
         j = json.loads(r.read())
         ret = []
@@ -86,7 +86,7 @@ class PySNC:
 
         self.log.debug("Querying incident table with params %s" % kwargs)
 
-        url = self._get_incident_url(kwargs)
+        url = self._get_query_url('incident.do' **kwargs)
         r = urllib2.urlopen(url)
         j = json.loads(r.read())
         if len(j['records']) == 0:
