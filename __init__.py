@@ -127,6 +127,23 @@ class PySNC:
         self.log.debug('Returned result %s' % j)
         return j['records'][0]['sys_id']
 
+    def resolveSysID(self, sysid, table_name):
+        """ Return a dictionary representation of an object given it's sysid
+
+        Return None if the object is not found"""
+
+        sysid = urllib.urlencode({'sysparm_sys_id': sysid, 'sysparm_action': 'get'})
+
+        url = '''https://%s.service-now.com/%s?JSON&%s''' % ( self.instance, table_name, sysid )
+        self.log.debug('Query URL %s' % url)
+        r = urllib2.urlopen(url)
+        j = json.loads(r.read())
+        if not j['records']:
+            self.log.debug('Returning None')
+            return None
+        self.log.debug('Returned result %s' % j)
+        return j['records'][0]
+
                 
 
         
