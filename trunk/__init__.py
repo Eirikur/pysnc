@@ -64,7 +64,7 @@ class PySNC:
 
         string = ''
         for k in params.keys():
-            if isinstance(params[k], str):
+            if isinstance(params[k], (unicode, str)):
                 params[k] = urllib.quote(params[k])
             string += '''%s=%s^''' % ( k, params[k])
         string = string[:-1]
