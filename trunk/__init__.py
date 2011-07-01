@@ -75,40 +75,6 @@ class PySNC:
         j = json.loads(r.read())
         return j
 
-
-    def filterIncidents(self, *args, **kwargs):
-
-        self.log.debug("Querying incident table with params %s" % kwargs)
-        ret = []
-        
-        for i in self._get_records('incident.do', **kwargs)['records']:
-            ret.append(SNCIncident(snc_instance=self, log=self.log, data=i))
-        return ret
-
-    def getIncident(self, *args, **kwargs):
-
-        self.log.debug("Querying incident table with params %s" % kwargs)
-
-        j = self._get_records('incident.do', **kwargs)
-        if len(j['records']) == 0:
-            raise PySNCError("No records were returned")
-        elif len(j['records']) > 1:
-            raise PySNCError("Multiple records were returned")
-        else:
-            return SNCIncident(snc_instance=self, log=self.log, data=j['records'][0])
-
-
-    def addIncident(self, *args, **kwargs):
-        """ Return a SNCIncident instance that is not committed to the Service
-        Now database yet.
-
-        The user should call save() on this instance to actually create the
-        incident
-        """
-
-        self.log.debug("Adding a new instance with kwargs %s" % kwargs)
-        return SNCIncident(snc_instance=self, log=self.log, data=kwargs)
-
     def resolveAttribute(self, name, table_name):
         """ Return a sys_id for an attribute given it's name.
 
@@ -143,6 +109,38 @@ class PySNC:
         self.log.debug('Returned result %s' % j)
         return j['records'][0]
 
-                
+    def filterIncidents(self, *args, **kwargs):
+
+        self.log.debug("Querying incident table with params %s" % kwargs)
+        ret = []
+        
+        for i in self._get_records('incident.do', **kwargs)['records']:
+            ret.append(SNCIncident(snc_instance=self, log=self.log, data=i))
+        return ret
+
+    def getIncident(self, *args, **kwargs):
+
+        self.log.debug("Querying incident table with params %s" % kwargs)
+
+        j = self._get_records('incident.do', **kwargs)
+        if len(j['records']) == 0:
+            raise PySNCError("No records were returned")
+        elif len(j['records']) > 1:
+            raise PySNCError("Multiple records were returned")
+        else:
+            return SNCIncident(snc_instance=self, log=self.log, data=j['records'][0])
+
+
+    def addIncident(self, *args, **kwargs):
+        """ Return a SNCIncident instance that is not committed to the Service
+        Now database yet.
+
+        The user should call save() on this instance to actually create the
+        incident
+        """
+
+        self.log.debug("Adding a new instance with kwargs %s" % kwargs)
+        return SNCIncident(snc_instance=self, log=self.log, data=kwargs)
+
 
         
