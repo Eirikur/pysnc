@@ -64,7 +64,6 @@ class PySNC:
 
         string = ''
         for k in params.keys():
-            self.log.debug('Looking at params %s=>%s' % (k, params[k]))
             if isinstance(params[k], str):
                 params[k] = urllib.quote(params[k])
             string += '''%s=%s^''' % ( k, params[k])
