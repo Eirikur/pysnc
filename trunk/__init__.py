@@ -59,28 +59,30 @@ class PySNC:
         self.log.debug('''Logged into Service Now and authenticated as %s''' % self.username)
 
 
-    def _get_query_url(self, table, **params):
-        """ Return the correct URL for querying the Service Now console database table """
+    def _get_records(self, table, **params):
+        """ Query the SNC instance and return a raw Python object """
 
-        str = ''
+        string = ''
         for k in params.keys():
-            str += '''%s=%s^''' % ( k, params[k])
-        str = str[:-1]
-        str = '''sysparm_action=getRecords&sysparm_query=%s''' % str
-        url = '''https://%s.service-now.com/%s?JSON&%s''' % ( self.instance, table, str )
-        self.log.debug("Query URL %s" % url)
-        return url
+            self.log.debug('Looking at params %s=>%s' % (k, params[k]))
+            if isinstance(params[k], str):
+                params[k] = urllib.quote(params[k])
+            string += '''%s=%s^''' % ( k, params[k])
+        string = string[:-1]
+        string = '''sysparm_action=getRecords&sysparm_query=%s''' % string
+        url = '''https://%s.service-now.com/%s?JSON&%s''' % ( self.instance, table, string )
+        self.log.debug('Running API query: %s' % url)
+        r = urllib2.urlopen(url)
+        j = json.loads(r.read())
+        return j
 
 
     def filterIncidents(self, *args, **kwargs):
 
         self.log.debug("Querying incident table with params %s" % kwargs)
-
-        url = self._get_query_url('incident.do', **kwargs)
-        r = urllib2.urlopen(url)
-        j = json.loads(r.read())
         ret = []
-        for i in j['records']:
+        
+        for i in self._get_records('incident.do', **kwargs)['records']:
             ret.append(SNCIncident(snc_instance=self, log=self.log, data=i))
         return ret
 
@@ -88,9 +90,7 @@ class PySNC:
 
         self.log.debug("Querying incident table with params %s" % kwargs)
 
-        url = self._get_query_url('incident.do' **kwargs)
-        r = urllib2.urlopen(url)
-        j = json.loads(r.read())
+        j = self._get_records('incident.do', **kwargs)
         if len(j['records']) == 0:
             raise PySNCError("No records were returned")
         elif len(j['records']) > 1:
